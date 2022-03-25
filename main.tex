@@ -160,7 +160,19 @@
 \begin{frame}
     \frametitle{手写 CUDA（失败）}
 
+    \begin{multicols}{2}
+        尝试令一个 block 处理一个波形，由于 CUDA 的同步机制，
+        恰好可以实现对波形的并行处理。
 
+        我们写了1350行 CUDA 代码（包括单元测试），但是很不幸，
+        由于对同步机制的理解并不深刻，代码至今没有跑通。
+
+        但是这些代码非常壮观，因此在这里给一点样例，记录我们曾经的努力。
+        \columnbreak
+        \begin{figure}
+            \includegraphics[height=0.7\textheight]{tsmp.png}
+        \end{figure}
+    \end{multicols}
 
 \end{frame}
 
@@ -176,7 +188,7 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=0.75\textwidth]{bench.pdf}
+        \includegraphics[height=0.75\textheight]{bench.pdf}
     \end{figure}
 
 \end{frame}
