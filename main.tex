@@ -1,0 +1,199 @@
+\documentclass[aspectratio=149]{beamer}
+\def\mathfamilydefault{\rmdefault}
+\usepackage[heading]{ctex}
+\usepackage{subfigure,color,bm}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{mhchem}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric}
+\usetheme{berlin}
+
+\title{GPU 上的中微子探测}
+\author{Berrysoft(王宇逸)}
+\begin{document}
+\begin{frame}
+    \titlepage
+\end{frame}
+\section{物理背景}
+\begin{frame}
+    \frametitle{何为中微子}
+
+    \begin{multicols}{2}
+        在一个典型的$\beta$衰变中，原子核放出一个电子。
+        这个电子的能量服从右图的分布。
+
+        由于能量动量守恒，泡利假设存在另一种粒子分走了部分能量动量。
+        费米将其命名为\textbf{中微子}（neutrino）。
+
+        \begin{equation*}
+            n\to p+e^-+\bar{\nu}_e
+        \end{equation*}
+        \columnbreak
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.5\textwidth]{RaE1.jpg}
+            \caption{图片来源：维基百科}
+        \end{figure}
+    \end{multicols}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{中微子质量顺序}
+
+    中微子振荡的发现确认了中微子存在质量，这是一个超出现有标准模型的结论。
+    确定三个质量本征态的质量顺序，能够帮助我们排除一些物理模型。
+
+    如今我们能够确定$m_2>m_1,\Delta m_{31}^2 \gg \Delta m_{21}^2$。
+    因此中微子质量仅存在两种排序可能：
+    $m_3>m_2>m_1$（正序）或$m_2>m_1>m_3$（反序）。
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]
+    \frametitle{江门中微子实验（JUNO）}
+
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.6\textheight]{juno_det.png}
+        \caption{JUNO 的探测器结构。图片来源：百度百科}
+    \end{figure}
+
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.6\textheight]{juno_geo.png}
+        \caption{JUNO 的地理位置。图片来源：百度百科}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{JUNO 的物理目标}
+
+    \begin{multicols}{2}
+        我们实际上能够探测的是电子反中微子$\bar{\nu}_e$，
+        它的能谱根据中微子质量顺序的不同而有着微弱的差异，如右图。
+
+        如果能够测量确认实际的能谱属于哪一种，就能够确认中微子的质量顺序。
+        \columnbreak
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.5\textwidth]{nu_energy.png}
+        \end{figure}
+    \end{multicols}
+
+\end{frame}
+\section{探测器物理过程}
+\begin{frame}
+    \frametitle{逆$\beta$衰变}
+
+    液体闪烁体中含有大量的质子，中微子主要和质子反应：
+    \begin{equation*}
+        \bar{\nu}_e+p\to n+e^+
+    \end{equation*}
+    产生的正电子会与液闪分子相互作用，产生大量光子。
+    正电子会与电子湮灭：
+    \begin{equation*}
+        e^+ +e^-\to\gamma+\gamma
+    \end{equation*}
+    放出的$\gamma$主要与电子发生康普顿散射，被散射的电子也会与液闪分子相互作用产生光子。
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{光电倍增管}
+
+    \begin{multicols}{2}
+        光电倍增管（PMT）是一个信号放大器。
+        它利用光电效应，将光子信号转变为单电子信号。
+        再将一个电子变成许多电子，从而形成可以观测的波形。
+
+        \begin{figure}
+            \centering
+            \includegraphics[width=0.3\textwidth]{pmt_work.png}
+            \caption{PMT 的放大原理示意图}
+        \end{figure}
+        \columnbreak
+        \begin{figure}
+            \centering
+            \includegraphics[height=0.7\textheight]{pmt.jpg}
+        \end{figure}
+    \end{multicols}
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{输出波形}
+
+    PMT 输出的波形除了电子信号，还有电子学噪声。
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\textwidth]{draw2_4.png}
+        \caption{一个 PMT 上可能的波形示意，垂直线是真实的电子信号时间}
+    \end{figure}
+
+\end{frame}
+\section{波形分析}
+\begin{frame}
+    \frametitle{经典重建算法}
+
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{马尔科夫链蒙特卡罗}
+
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{混合MCMC链}
+
+
+
+\end{frame}
+\section{GPU 加速}
+\begin{frame}
+    \frametitle{手写 CUDA（失败）}
+
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{批量处理}
+
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{CuPy 与 Tensorflow 的速度对比}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.75\textwidth]{bench.pdf}
+    \end{figure}
+
+\end{frame}
+\section{展望未来}
+\begin{frame}
+    \frametitle{能量重建、多点源重建与粒子鉴别}
+
+
+
+\end{frame}
+
+\begin{frame}
+    \frametitle{致谢}
+
+
+
+\end{frame}
+\section{参考文献}
+
+\end{document}
