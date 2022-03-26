@@ -4,7 +4,7 @@
 \usepackage{subfigure,color,bm}
 \usepackage{mathtools}
 \usepackage{multicol}
-\usepackage{mhchem}
+\usepackage{minted}
 \usepackage{tikz}
 \usetikzlibrary{tikzmark}
 \usetikzlibrary{arrows.meta}
@@ -22,6 +22,7 @@
     \titlepage
 \end{frame}
 \section{物理背景}
+\subsection{基础介绍}
 \begin{frame}
     \frametitle{何为中微子}
 
@@ -38,7 +39,7 @@
         \columnbreak
         \begin{figure}
             \centering
-            \includegraphics[width=0.5\textwidth]{RaE1.jpg}
+            \includegraphics[width=0.45\textwidth]{RaE1.jpg}
             \caption{图片来源：维基百科}
         \end{figure}
     \end{multicols}
@@ -82,7 +83,7 @@
     \end{multicols}
 
 \end{frame}
-\section{探测器物理过程}
+\subsection{探测器物理过程}
 \begin{frame}
     \frametitle{逆$\beta$衰变}
 
@@ -121,6 +122,7 @@
 
 \end{frame}
 \section{波形分析}
+\subsection{框架}
 \begin{frame}{光电子的泊松过程}
     光电子击中 PMT 的过程是一个泊松过程。下图是发光曲线与波形。
     \begin{figure}
@@ -128,6 +130,8 @@
     \end{figure}
     重建算法需要光强$\mu$与发光曲线的时间偏移$t_0$。
 \end{frame}
+
+\subsection{FSMP}
 \begin{frame}{Fast Stochastic Matching Pursuit (FSMP)}
     我们使用马尔科夫链蒙特卡罗（MCMC）采样这一过程：
     \vspace{8pt}
@@ -149,10 +153,11 @@
         \end{aligned}
     \end{equation}
 \end{frame}
+
 \begin{frame}{MCMC 的步骤}
     \begin{figure}
         \centering
-        \begin{tikzpicture}[scale=0.50]
+        \begin{tikzpicture}[scale=0.45]
             \node[] at (-18,0) {Generate};
             \draw[->,line width=2pt] (-16,0) -- (-8,0);
             \draw[black,line width=2pt] (-15,0) -- (-15,1);
@@ -206,6 +211,7 @@
     \end{figure}
     这些操作需要满足一定的接受率才会被接受，例如$\displaystyle\min\left\{1, \frac{p(t'_0|\bm{z}_i,\mu)g(t'_0\to t_0)}{p(t_0|\bm{z}_i,\mu)g(t_0\to t'_0)}\right\}$
 \end{frame}
+
 \begin{frame}
     \frametitle{收敛性}
 
@@ -215,11 +221,12 @@
 
     \begin{figure}
         \centering
-        \includegraphics[width=0.5\textwidth]{conv.pdf}
+        \includegraphics[width=0.45\textwidth]{conv.pdf}
     \end{figure}
 
 \end{frame}
 \section{GPU 加速}
+\subsection{批量处理}
 \begin{frame}
     \frametitle{手写 CUDA（失败）}
 
@@ -230,7 +237,7 @@
         我们写了1350行 CUDA 代码（包括单元测试），但是很不幸，
         由于对同步机制的理解并不深刻，代码至今没有跑通。
 
-        但是这些代码非常壮观，因此在这里给一点样例，记录我们曾经的努力。
+        但是这些代码\textbf{非常壮观}，因此在这里给一点样例。
         \columnbreak
         \begin{figure}
             \includegraphics[height=0.7\textheight]{tsmp.png}
@@ -252,9 +259,12 @@
         \includegraphics[height=0.7\textheight]{batched2.png}
     \end{figure}
 
+    在 A100 上，可以达到 10ms/波形。
+
 \end{frame}
 
-\begin{frame}
+\subsection{Benchmarks}
+\begin{frame}[allowframebreaks,fragile]
     \frametitle{CuPy 与 Tensorflow 的速度对比}
 
     \begin{figure}
@@ -262,17 +272,43 @@
         \includegraphics[height=0.75\textheight]{bench.pdf}
     \end{figure}
 
+    \begin{table}
+        \centering
+        \begin{tabular}{|c|c|}
+            CuPy & Tensorflow \\
+            \hline
+            \begin{minipage}[t]{0.5\textwidth}
+                \begin{minted}{python}
+sel_add = cp.ElementwiseKernel(
+    "float32 delta, bool sel",
+    "float32 dest",
+    "if(sel) dest += delta",
+    "sel_add"
+)
+def cp_inplace_add(a, b, c):
+    sel_add(c, b, a)
+                \end{minted}
+            \end{minipage}
+                 &
+            \begin{minipage}[t]{0.5\textwidth}
+                \begin{minted}{python}
+
+
+
+
+
+
+def tf_inplace_add(a, b, c):
+    a = tf.where(b, a + c, a)
+                \end{minted}
+            \end{minipage}
+        \end{tabular}
+        \caption{并不知道 Tensorflow 有没有什么高效的 inplace/masked add 方法}
+    \end{table}
+
 \end{frame}
-\section{展望未来}
+\section{结束}
 \begin{frame}
-    \frametitle{点源重建、多点源重建与粒子鉴别}
-
-
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{结束}
 
     \begin{block}{致谢}
         \begin{itemize}
