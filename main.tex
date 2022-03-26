@@ -1,4 +1,4 @@
-\documentclass[aspectratio=149]{beamer}
+\documentclass[aspectratio=169]{beamer}
 \def\mathfamilydefault{\rmdefault}
 \usepackage[heading]{ctex}
 \usepackage{subfigure,color,bm}
@@ -6,11 +6,13 @@
 \usepackage{multicol}
 \usepackage{mhchem}
 \usepackage{tikz}
-\usetikzlibrary{positioning, shapes.geometric}
+\usetikzlibrary{tikzmark}
+\usetikzlibrary{arrows.meta}
 \usetheme{berlin}
 
 \title{GPU 上的中微子探测}
 \author{Berrysoft(王宇逸)}
+\institute{清华大学工程物理系}
 \begin{document}
 \begin{frame}
     \titlepage
@@ -56,14 +58,14 @@
 
     \begin{figure}
         \centering
-        \includegraphics[height=0.6\textheight]{juno_det.png}
-        \caption{JUNO 的探测器结构。图片来源：百度百科}
+        \includegraphics[height=0.6\textheight]{juno_geo.png}
+        \caption{JUNO 的地理位置。图片来源：百度百科}
     \end{figure}
 
     \begin{figure}
         \centering
-        \includegraphics[height=0.6\textheight]{juno_geo.png}
-        \caption{JUNO 的地理位置。图片来源：百度百科}
+        \includegraphics[height=0.6\textheight]{juno_det.png}
+        \caption{JUNO 的探测器结构。图片来源：百度百科}
     \end{figure}
 
 \end{frame}
@@ -122,38 +124,103 @@
     \end{multicols}
 
 \end{frame}
+\section{波形分析}
+\begin{frame}{光电子的泊松过程}
+    光电子击中 PMT 的过程是一个泊松过程。下图是发光曲线与波形。
+    \begin{figure}
+        \includegraphics[width=0.8\textwidth]{poissonprocess.2.pdf}
+    \end{figure}
+    重建算法需要光强$\mu$与发光曲线的时间偏移$t_0$。
+\end{frame}
+\begin{frame}{Fast Stochastic Matching Pursuit (FSMP)}
+    我们使用马尔科夫链蒙特卡罗（MCMC）采样这一过程：
+    \vspace{8pt}
+    \begin{equation}
+        p(\tikzmarknode{w}{w}|\tikzmarknode{mu}{\mu})=\sum_{\bm{z},t_0}p(w|\bm{z},t_0)q(\bm{z},t_0)\frac{p(\tikzmarknode{z}{\bm{z}},\tikzmarknode{t}{t_0}|\mu)}{q(\bm{z},t_0)}\tikzmarknode{mcmc}{\approx} C \frac{1}{M}\sum_{i=1}^M\frac{p(\bm{z}_i|t_{0i},\mu)}{p(\bm{z}_i|t_{0i},\mu_0)}
+    \end{equation}
+    \begin{tikzpicture}[overlay,remember picture,blue,>=Stealth]
+        \draw[<-] (w) |- (1,2) node[anchor=south west] {波形};
+        \draw[<-] (mu) |- (4,2) node[anchor=south east] {光强};
+        \draw[<-] (z) |- (5,2) node[anchor=south west] {光电子序列};
+        \draw[<-] (t) |- (10,2) node[anchor=south east] {时间偏移};
+        \draw[<-] (mcmc) |- (11,0) node[anchor=south east] {MCMC};
+    \end{tikzpicture}
+    并估计$t_0$与$\mu$：
+    \begin{equation}
+        \begin{aligned}
+            \hat{t}_0 & =\frac{1}{M}\sum_{i=1}^M t_{0i}     \\
+            \hat{\mu} & =\arg\underset{\mu}{\min} ~p(w|\mu)
+        \end{aligned}
+    \end{equation}
+\end{frame}
+\begin{frame}{MCMC 的步骤}
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}[scale=0.50]
+            \node[] at (-18,0) {Generate};
+            \draw[->,line width=2pt] (-16,0) -- (-8,0);
+            \draw[black,line width=2pt] (-15,0) -- (-15,1);
+            \draw[black,line width=2pt] (-13,0) -- (-13,1);
+            \draw[black,line width=2pt] (-12,0) -- (-12,1);
+            \draw[blue,line width=2pt] (-10,0) -- (-10,1);
+            \node[] at (-7.5,-0.5) {$t$};
 
+            \node[] at (-18,-3) {Annihilate};
+            \draw[->,line width=2pt] (-16,-3) -- (-8,-3);
+            \draw[black,line width=2pt] (-15,-3) -- (-15,-2);
+            \draw[black,line width=2pt] (-13,-3) -- (-13,-2);
+            \draw[dotted,blue,line width=2pt] (-12,-3) -- (-12,-2);
+            \node[] at (-7.5,-3.5) {$t$};
+
+            \node[] at (-18,-6) {Move};
+            \draw[->,line width=2pt] (-16,-6) -- (-8,-6);
+            \draw[black,line width=2pt] (-15,-6) -- (-15,-5);
+            \draw[black,line width=2pt] (-13,-6) -- (-13,-5);
+            \draw[dotted,black,line width=2pt] (-12,-6) -- (-12,-5);
+            \draw[black,line width=2pt] (-10,-6) -- (-10,-5);
+            \draw[->,blue,line width=2pt] plot [smooth] coordinates {(-12,-4.5) (-11,-4) (-10,-4.5)};
+            \node[] at (-7.5,-6.5) {$t$};
+
+            \node[] at (-2,0) {MCP$++$};
+            \draw[->,line width=2pt] (0,0) -- (8,0);
+            \draw[black,line width=2pt] (1,0) -- (1,1);
+            \draw[black,line width=2pt] (3,0) -- (3,1);
+            \draw[black,line width=2pt] (4,0) -- (4,1);
+            \draw[blue,line width=2pt] (4,1.05) -- (4,2);
+            \node[] at (8.5,-0.5) {$t$};
+
+            \node[] at (-2,-3) {MCP$--$};
+            \draw[->,line width=2pt] (0,-3) -- (8,-3);
+            \draw[black,line width=2pt] (1,-3) -- (1,-2);
+            \draw[black,line width=2pt] (3,-3) -- (3,-2);
+            \draw[black,line width=2pt] (4,-3) -- (4,-2);
+            \draw[dotted,blue,line width=2pt] (4,-2) -- (4,-1);
+            \node[] at (8.5,-3.5) {$t$};
+
+            \node[] at (-2,-6) {Change $t_0$};
+            \draw[->,line width=2pt] (0,-6) -- (8,-6);
+            \draw[dotted,black,line width=2pt] (1,-6) -- (1,-5);
+            \draw[black,line width=2pt] (1.5,-6) -- (1.5,-5);
+            \draw[dotted,black,line width=2pt] (3,-6) -- (3,-5);
+            \draw[black,line width=2pt] (3.5,-6) -- (3.5,-5);
+            \draw[dotted,black,line width=2pt] (4,-6) -- (4,-5);
+            \draw[black,line width=2pt] (4.5,-6) -- (4.5,-5);
+            \node[] at (8.5,-6.5) {$t$};
+        \end{tikzpicture}
+    \end{figure}
+    这些操作需要满足一定的接受率才会被接受，例如$\displaystyle\min\left\{1, \frac{p(t'_0|\bm{z}_i,\mu)g(t'_0\to t_0)}{p(t_0|\bm{z}_i,\mu)g(t_0\to t'_0)}\right\}$
+\end{frame}
 \begin{frame}
-    \frametitle{输出波形}
+    \frametitle{收敛性}
 
-    PMT 输出的波形除了电子信号，还有电子学噪声。
+    使用 Gelman 和 Rubin 的方法(1992)可以计算混合 MCMC 的收敛性。
+
+    通常，这个链会在 $3000\sim 5000$ 步左右收敛。
 
     \begin{figure}
         \centering
-        \includegraphics[width=0.5\textwidth]{draw2_4.png}
-        \caption{一个 PMT 上可能的波形示意，垂直线是真实的电子信号时间}
+        \includegraphics[width=0.5\textwidth]{conv.pdf}
     \end{figure}
-
-\end{frame}
-\section{波形分析}
-\begin{frame}
-    \frametitle{经典重建算法}
-
-
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{马尔科夫链蒙特卡罗}
-
-
-
-\end{frame}
-
-\begin{frame}
-    \frametitle{混合MCMC链}
-
-
 
 \end{frame}
 \section{GPU 加速}
@@ -176,10 +243,18 @@
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}[allowframebreaks]
     \frametitle{批量处理}
 
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textheight]{batched1.png}
+    \end{figure}
 
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textheight]{batched2.png}
+    \end{figure}
 
 \end{frame}
 
@@ -194,7 +269,7 @@
 \end{frame}
 \section{展望未来}
 \begin{frame}
-    \frametitle{能量重建、多点源重建与粒子鉴别}
+    \frametitle{点源重建、多点源重建与粒子鉴别}
 
 
 
