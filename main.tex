@@ -10,6 +10,10 @@
 \usetikzlibrary{arrows.meta}
 \usetheme{berlin}
 
+\expandafter\def\expandafter\insertshorttitle\expandafter{%
+    \insertshorttitle\hfill%
+    \insertframenumber\,/\,\inserttotalframenumber\hfill}
+
 \title{GPU 上的中微子探测}
 \author{Berrysoft(王宇逸)}
 \institute{清华大学工程物理系}
@@ -41,18 +45,6 @@
 
 \end{frame}
 
-\begin{frame}
-    \frametitle{中微子质量顺序}
-
-    中微子振荡的发现确认了中微子存在质量，这是一个超出现有标准模型的结论。
-    确定三个质量本征态的质量顺序，能够帮助我们排除一些物理模型。
-
-    如今我们能够确定$m_2>m_1,\Delta m_{31}^2 \gg \Delta m_{21}^2$。
-    因此中微子质量仅存在两种排序可能：
-    $m_3>m_2>m_1$（正序）或$m_2>m_1>m_3$（反序）。
-
-\end{frame}
-
 \begin{frame}[allowframebreaks]
     \frametitle{江门中微子实验（JUNO）}
 
@@ -74,14 +66,18 @@
     \frametitle{JUNO 的物理目标}
 
     \begin{multicols}{2}
-        我们实际上能够探测的是电子反中微子$\bar{\nu}_e$，
-        它的能谱根据中微子质量顺序的不同而有着微弱的差异，如右图。
+        中微子振荡的发现确认了中微子存在质量，这是一个超出现有标准模型的结论。
+        确定三个质量本征态的质量顺序，能够帮助我们排除一些物理模型。
 
-        如果能够测量确认实际的能谱属于哪一种，就能够确认中微子的质量顺序。
+        如今我们能够确定$m_2>m_1,\Delta m_{31}^2 \gg \Delta m_{21}^2$。
+        因此中微子质量仅存在两种排序可能：
+        $m_3>m_2>m_1$（正序）或$m_2>m_1>m_3$（反序）。
+
+        电子反中微子$\bar{\nu}_e$的能谱根据中微子质量顺序的不同而有着微弱的差异，如右图。
         \columnbreak
         \begin{figure}
             \centering
-            \includegraphics[width=0.5\textwidth]{nu_energy.png}
+            \includegraphics[width=0.45\textwidth]{nu_energy.png}
         \end{figure}
     \end{multicols}
 
@@ -276,11 +272,32 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{致谢}
+    \frametitle{结束}
 
+    \begin{block}{致谢}
+        \begin{itemize}
+            \item 续本达（@heroxbd）老师贡献了大量的代码与优化。
+            \item 徐大成（@thexdc）同学的波形分析论文：\href{https://arxiv.org/abs/2112.06913}{arXiv:2112.06913}
+            \item 杰哥（@jiegec）的多次讨论与 GPU 计算方面的指导。
+            \item 感谢其他提供点子的同学！
+            \item 部分图片来源杂糅，无法完全表明出处。
+        \end{itemize}
+    \end{block}
 
+    \begin{block}{资源}
+        \begin{itemize}
+            \item \href{https://github.com/Berrysoft/NeutrinoFSMP}{NeutrinoFSMP}：讲稿，与 benchmark。
+            \item \href{https://github.com/Berrysoft/TurboSMP}{TurboSMP}：失败的 CUDA 尝试。
+        \end{itemize}
+    \end{block}
 
 \end{frame}
-\section{参考文献}
 
+\begin{frame}[noframenumbering]
+
+    \begin{minipage}{1\textwidth}
+        \centering Q\&A
+    \end{minipage}
+
+\end{frame}
 \end{document}
